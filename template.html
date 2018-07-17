@@ -156,7 +156,8 @@
                 dataType: "json"
             }).done(function(response) {
 
-
+ $('#submit').html('Submit');
+                    $('#submit').prop('disabled', false);
 
                 if (!response) {
 
@@ -214,8 +215,7 @@
                     $('#vid-details').show();
                     $('#vid-details').find('.vid-versions').html(formatsStr);
 
-                    $('#submit').html('Submit');
-                    $('#submit').prop('disabled', false);
+                   
 
                 }
 
