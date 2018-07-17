@@ -1,0 +1,282 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Bootswatch: Materia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://vjs.zencdn.net/7.0.5/video-js.css" rel="stylesheet">
+    <script src="http://vjs.zencdn.net/ie8/ie8-version/videojs-ie8.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/videojs-resolution-switcher/0.4.2/videojs-resolution-switcher.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://bootswatch.com/4/materia/bootstrap.css" media="screen">
+    <style type="text/css">
+    .card-block {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1 1 auto;
+        -ms-flex: 1 1 auto;
+        flex: 1 1 auto;
+        padding: 1.25rem;
+    }
+
+    </style>
+</head>
+
+<body>
+    <div class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
+    </div>
+    <div class="container">
+        <div class="page-header" id="banner">
+            <div class="row">
+                <div class="col-lg-8 col-md-7 col-sm-6">
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-12" id="msg">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10">
+                        <input placeholder="Please enter a youtyube video url" type="text" name="url" value="" id="url" class="form-control-plaintext" />
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="button" class="btn btn-primary bt-nblock btn-lg" name="submit" id="submit">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="row" id="vid-details" style="display:none">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 style="text-transform: uppercase;"> <span class ="vid-title">this is the title</span>
+
+                            <button type="button" class="btn btn-outline-success btn-lg play-video">Play online</button>
+
+                        </h2>
+                        <hr/>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    <div class="col-lg-12 ">
+                                        <div class="vid-player embed-responsive embed-responsive-16by9" style="display:none">
+                                            <video class="video-js embed-responsive-item"></video>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <p class="lead vide-desc">
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <h2>Choose quality for download</h2>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <tbody class="vid-versions">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <h2>Thumbnail</h2>
+                                <br/>
+                                <a class="vid-link" target="_blank"><img class="img-fluid vid-image" src="" /></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <br/>
+    <div class="container">
+        <footer id="footer">
+            <div class="row">
+                <div class="col-lg-12">
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://vjs.zencdn.net/7.0.5/video.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-resolution-switcher/0.4.2/videojs-resolution-switcher.min.js"></script>
+    <script>
+    var vid_formats = [];
+
+    function humanFileSize(size) {
+        var i = Math.floor(Math.log(size) / Math.log(1024));
+        return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    };
+    $(document).ready(function() {
+
+
+        $(document).on('click', '.play-video', function() {
+            if (!vid_formats.length) {
+                return;
+            }
+            initPlayer();
+        });
+
+        $('#submit').on('click', function() {
+            $('#msg').html("");
+            if (!$('#url').val()) {
+                $('#msg').html('<div class="alert alert-danger" role="alert">Please enter youtube video url</div>');
+                return;
+            }
+
+            $('#submit').html('Please wait..');
+            $('#submit').prop('disabled', true);
+            $('#vid-details').hide();
+            $('#vid-details').find('.vid-player').hide()
+            $.ajax({
+                url: "index.php",
+                method: "POST",
+                data: { url: $('#url').val() },
+                dataType: "json"
+            }).done(function(response) {
+
+
+
+                if (!response) {
+
+                    $('#msg').html('<div class="alert alert-danger" role="alert">Unknown error</div>');
+
+                } else if (!response.status) {
+                    if (response.data) {
+                        $('#msg').html('<div class="alert alert-danger" role="alert">' + response.data + '</div>');
+
+                    } else {
+                        $('#msg').html('<div class="alert alert-danger" role="alert">Unknown error</div>');
+                    }
+
+                } else {
+
+                    $('#vid-details').find('.vid-title').html(response.data.fulltitle)
+                    $('#vid-details').find('.vid-desc').html(response.data.description)
+                    $('#vid-details').find('.vid-image').attr('src', response.data.thumbnail)
+
+                    $('#vid-details').find('.vid-link').attr('href', response.url)
+                    poster_url = response.data.thumbnail;
+                    var formatsStr = "";
+                    vid_formats = [];
+                    response.data.formats.forEach(function(value) {
+                        //if (value.format.indexOf('audio') == -1)
+                        {
+                            var size = "";
+                            if (value.resolution) {
+                                size = value.resolution;
+                            } else if (value.width) {
+                                size = value.width + "x" + value.height;
+                            }
+                            if (size) {
+                                size = size + ' (' + value.format_note + ')';
+                            } else {
+                                size = value.format_note;
+                            }
+
+                            formatsStr = formatsStr + '<tr> <td>' + size + '</td> <td>' + value.ext + (value.vcodec == 'none' ? ' audio only' : (value.acodec == 'none' ? ' video only' : " audio+video")) + '</td> <td style="font-weight:bold"><a  download="true" href="' + value.url + '">Download</a> ' + (value.filesize ? '(' + humanFileSize(value.filesize) + ')' : "") + '</td> </tr>';
+
+                            if (value.acodec != 'none' && value.format.indexOf('audio') == -1 && (value.ext == 'mp4')) {
+                                value = {
+                                    src: value.url,
+                                    type: 'video/' + value.ext,
+                                    label: value.format_note,
+                                    format: value.format,
+                                    ext: value.ext
+                                };
+                                vid_formats.push(value);
+                            }
+                        }
+
+
+                    });
+                    $('#vid-details').show();
+                    $('#vid-details').find('.vid-versions').html(formatsStr);
+
+                    $('#submit').html('Submit');
+                    $('#submit').prop('disabled', false);
+
+                }
+
+            }).fail(function(jqXHR, textStatus) {
+                $('#msg').html('<div class="alert alert-danger" role="alert">Request failed:' + textStatus + '</div>');
+
+                $('#submit').html('Submit');
+                $('#submit').prop('disabled', false);
+            });
+
+
+
+        });
+    });
+
+    var vidjs;
+    var poster_url;
+
+    function initPlayer() {
+
+        $('#vid-details').find('.vid-player').show();
+
+
+
+
+        // player = videojs($('#vid-details').find('.vid-player')[0], options);
+        //  player.src(vid_formats);
+
+        // 
+        if (vidjs) {
+            vidjs.updateSrc(vid_formats);
+            vidjs.poster(poster_url)
+            return;
+        }
+        vidjs = videojs($('#vid-details').find('.video-js')[0], {
+            controls: true,
+            width: "100%",
+            class: 'video-js vjs-default-skin',
+            poster: poster_url,
+
+            plugins: {
+                videoJsResolutionSwitcher: {
+                    default: 'low', // Default resolution [{Number}, 'low', 'high'],
+                    dynamicLabel: true
+                }
+            }
+        }, function() {
+            var player = this;
+            window.player = player
+            player.updateSrc(vid_formats)
+            //  vid_formats = [];
+            player.on('resolutionchange', function() {
+                console.log('Source changed to %s', player.src())
+            })
+        })
+
+    }
+
+    </script>
+
+</html>
+
+
+ 
